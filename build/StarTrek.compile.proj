@@ -1,0 +1,17 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RootDir>$(MSBuildProjectDirectory)\..</RootDir>
+    <OutDir>$(RootDir)\bin</OutDir>
+    <IntDir>$(RootDir)\obj</IntDir>
+    <ExeName>StarTrek.exe</ExeName>
+  </PropertyGroup>
+
+  <Target Name="Build">
+    <MakeDir Directories="$(OutDir);$(IntDir)" />
+    <Exec Command="cl /nologo /W3 /TC /Zi /Fd:&quot;$(IntDir)\StarTrek.pdb&quot; /Fe:&quot;$(OutDir)\$(ExeName)&quot; /Fo:&quot;$(IntDir)\StarTrek.obj&quot; &quot;$(RootDir)\StarTrek.c&quot;" />
+  </Target>
+
+  <Target Name="Clean">
+    <RemoveDir Directories="$(OutDir);$(IntDir)" />
+  </Target>
+</Project>
