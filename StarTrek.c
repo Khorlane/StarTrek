@@ -38,6 +38,9 @@ char Galaxy[100];
 int  GalaxyRow;
 int  GalaxyCol;
 char GameRun;
+double KlingonHealth[100];
+int  KlingonNumber[100];
+int  KlingonsRemaining;
 char QuitForSure;
 int  Shields;
 int  Torpedoes;
@@ -60,6 +63,7 @@ void SetTheStage(void);
 void GetCmd(void);
 void GetInput(void);
 int  GetRandom(int Max);
+double GetRandomFactor(void);
 void Menu(void);
 void SeedRandom(void);
 void ShowEnterprise(void);
@@ -410,12 +414,151 @@ void LongRangeSensorScan(void)
 
 void FirePhasers(void)
 {
+  int Col;
+  int Count;
+  double Damage;
+  double Distance;
+  int EnergyToFire;
+  char Extra;
+  int i;
+  int Row;
+
   printf("\n");
   printf("****************\n");
   printf("* Fire Phasers *\n");
   printf("****************\n");
   printf("\n");
-  GetInput();
+  Count = 0;
+  for (Row = EnterpriseRow - 1; Row <= EnterpriseRow + 1; Row++)
+  {
+    for (Col = EnterpriseCol - 1; Col <= EnterpriseCol + 1; Col++)
+    {
+      if (Row == EnterpriseRow && Col == EnterpriseCol)
+      {
+        continue;
+      }
+      if (Row < 1 || Row > 10 || Col < 1 || Col > 10)
+      {
+        continue;
+      }
+      i = Row * 10 - 10 + Col - 1;
+      if (Galaxy[i] == 'K')
+      {
+        Count++;
+      }
+    }
+  }
+  if (Count == 0)
+  {
+    printf("No Klingons in phaser range\n");
+    GetCmd();
+    return;
+  }
+  printf("Energy available= %i\n", Energy);
+  printf("Phasers locked on %i Klingon", Count);
+  if (Count > 1)
+  {
+    printf("s");
+  }
+  printf(".\n");
+  for (Row = EnterpriseRow - 1; Row <= EnterpriseRow + 1; Row++)
+  {
+    for (Col = EnterpriseCol - 1; Col <= EnterpriseCol + 1; Col++)
+    {
+      if (Row == EnterpriseRow && Col == EnterpriseCol)
+      {
+        continue;
+      }
+      if (Row < 1 || Row > 10 || Col < 1 || Col > 10)
+      {
+        continue;
+      }
+      i = Row * 10 - 10 + Col - 1;
+      if (Galaxy[i] != 'K')
+      {
+        continue;
+      }
+      Distance = sqrt((double)((Row - EnterpriseRow) * (Row - EnterpriseRow) +
+        (Col - EnterpriseCol) * (Col - EnterpriseCol)));
+      printf("Klingon %i - Range: %.2f Points: %i\n", KlingonNumber[i],
+        Distance, (int)KlingonHealth[i]);
+    }
+  }
+  do
+  {
+    printf("Number of units to fire: ");
+    GetInput();
+    if (Buf[0] == '\0')
+    {
+      GetCmd();
+      return;
+    }
+    if (sscanf_s(Buf, " %d %c", &EnergyToFire, &Extra, 1) != 1)
+    {
+      printf("Invalid energy amount\n");
+      continue;
+    }
+    if (EnergyToFire <= 10)
+    {
+      printf("Phasers require more than 10 units to fire\n");
+      continue;
+    }
+    if (EnergyToFire > Energy)
+    {
+      printf("Insufficient energy available\n");
+      continue;
+    }
+    break;
+  } while (1);
+  Energy = Energy - EnergyToFire;
+  for (Row = EnterpriseRow - 1; Row <= EnterpriseRow + 1; Row++)
+  {
+    for (Col = EnterpriseCol - 1; Col <= EnterpriseCol + 1; Col++)
+    {
+      if (Row == EnterpriseRow && Col == EnterpriseCol)
+      {
+        continue;
+      }
+      if (Row < 1 || Row > 10 || Col < 1 || Col > 10)
+      {
+        continue;
+      }
+      i = Row * 10 - 10 + Col - 1;
+      if (Galaxy[i] != 'K')
+      {
+        continue;
+      }
+      Distance = sqrt((double)((Row - EnterpriseRow) * (Row - EnterpriseRow) +
+        (Col - EnterpriseCol) * (Col - EnterpriseCol)));
+      Damage = ((double)EnergyToFire / Count / Distance) * GetRandomFactor();
+      if (Damage < 2.0)
+      {
+        Damage = 2.0;
+      }
+      KlingonHealth[i] = KlingonHealth[i] - Damage;
+      if (KlingonHealth[i] < 1.0)
+      {
+        Galaxy[i] = ' ';
+        KlingonHealth[i] = 0.0;
+        KlingonsRemaining--;
+        printf("%i unit hit on Klingon %i at sector %i,%i destroyed. %i Klingon",
+          (int)Damage, KlingonNumber[i], Row, Col, KlingonsRemaining);
+        if (KlingonsRemaining != 1)
+        {
+          printf("s");
+        }
+        printf(" left to hunt down\n");
+      }
+      else
+      {
+        printf("%i unit hit on Klingon %i at sector %i,%i", (int)Damage,
+          KlingonNumber[i], Row, Col);
+        printf("   (%i left)\n", (int)KlingonHealth[i]);
+      }
+    }
+  }
+  ShowEnterprise();
+  GetCmd();
 }
 
 void FirePhotonTorpedoes(void)
@@ -521,12 +664,15 @@ void SetTheStage(void)
 
   SeedRandom();
   Energy = 10000;
+  KlingonsRemaining = 9;
   Shields = 0;
   Torpedoes = 5;
   // Clear the Galaxy
   for (i = 0; i < 100; i++)
   {
     Galaxy[i] = ' ';
+    KlingonHealth[i] = 0.0;
+    KlingonNumber[i] = 0;
   }
   // Place the Enterprise
   i = GetRandom(100);
@@ -544,6 +690,8 @@ void SetTheStage(void)
       if (Galaxy[i] == ' ')
       {
         Galaxy[i] = 'K';
+        KlingonHealth[i] = 200.0;
+        KlingonNumber[i] = k;
         Placed = 'Y';
       }
     }
@@ -578,6 +726,11 @@ int GetRandom(int Max)
   int x;
   x = rand() % Max;
   return x;
+}
+
+double GetRandomFactor(void)
+{
+  return ((double)rand() / RAND_MAX) * 2.0;
 }
 
 void SeedRandom(void)
