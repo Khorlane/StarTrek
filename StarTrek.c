@@ -1,4 +1,4 @@
-﻿// StarTrek by Steve Bryant (2014-12-31)
+// StarTrek by Steve Bryant (2014-12-31)
 // 
 // Influenced by
 // "STAR TREK: BY MIKE MAYFIELD, CENTERLINE ENGINEERING"
@@ -137,58 +137,39 @@ void Menu(void)
   printf("8. Self Destruct\n");
   printf("9. Quit\n");
   printf("\n");
-  printf("Command? ");
 }
 
 void SetCourse(void)
 {
-  int  a, b, c, i, j;
-  char x[3];
-  char y[3];
-  char BadCoordinate;
+  int  a, b, c, i;
+  char Extra;
 
   printf("\n");
   printf("**************\n");
   printf("* Set Course *\n");
   printf("**************\n");
   printf("\n");
-  printf("Enter coordinates as x,y\n");
-  GetInput();
-  i = 0;
-  j = 0;
-  while (Buf[i] != ',')
+  do
   {
-    x[j] = Buf[i];
-    i++;
-    j++;
-  }
-  x[j] = '\0';
-  i++;
-  j = 0;
-  while (Buf[i] != '\0')
-  {
-    y[j] = Buf[i];
-    i++;
-    j++;
-  }
-  y[j] = '\0';
-  GalaxyRow = atoi(x);
-  GalaxyCol = atoi(y);
-  BadCoordinate = 'N';
-  if (GalaxyRow < 0 || GalaxyRow > 10)
-  {
-    printf("\nInvalid x coordinate\n");
-    BadCoordinate = 'Y';
-  }
-  if (GalaxyCol < 0 || GalaxyCol > 10)
-  {
-    printf("\nInvalid y coordinate\n");
-    BadCoordinate = 'Y';
-  }
-  if (BadCoordinate == 'Y')
-  {
-    return;
-  }
+    printf("Enter coordinates as x,y\n");
+    GetInput();
+    if (Buf[0] == '\0')
+    {
+      GetCmd();
+      return;
+    }
+    if (sscanf_s(Buf, " %d , %d %c", &GalaxyRow, &GalaxyCol, &Extra, 1) != 2)
+    {
+      printf("Invalid coordinates\n");
+      continue;
+    }
+    if (GalaxyRow < 1 || GalaxyRow > 10 || GalaxyCol < 1 || GalaxyCol > 10)
+    {
+      printf("Range is 1 to 10\n");
+      continue;
+    }
+    break;
+  } while (1);
   i = GalaxyRow * 10 - 10 + GalaxyCol - 1;
   if (Galaxy[i] != ' ')
   {
@@ -520,7 +501,7 @@ void Quit(void)
 {
   printf("Are you sure? Y-N\n");
   GetInput();
-  if (Buf[0] == 'Y')
+  if (Buf[0] == 'Y' || Buf[0] == 'y')
   {
     QuitForSure = 'Y';
     printf("\nGood-bye\n\n");
@@ -574,6 +555,7 @@ void SetTheStage(void)
 //********************//
 void GetCmd(void)
 {
+  printf("> ");
   GetInput();
   Cmd = Buf[0];
 }
