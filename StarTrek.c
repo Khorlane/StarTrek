@@ -63,8 +63,7 @@ void SetTheStage(void);
 // Helper Functions
 void  GetCmd(void);
 void  GetInput(void);
-int   GetRandom(int Max);
-float GetRandomFactor(void);
+int   GetRandom(int Min, int Max);
 void  GoodBye(void);
 void  Menu(void);
 void  SeedRandom(void);
@@ -533,7 +532,8 @@ void FirePhasers(void)
       }
       Distance = sqrtf((float)((Row - EnterpriseRow) * (Row - EnterpriseRow) +
         (Col - EnterpriseCol) * (Col - EnterpriseCol)));
-      Damage = ((float)EnergyToFire / Count / Distance) * GetRandomFactor();
+      Damage = ((float)EnergyToFire / Count / Distance) *
+        (GetRandom(80, 120) / 100.0f);
       DamagePoints = (int)Damage;
       if (DamagePoints < 2)
       {
@@ -692,7 +692,7 @@ void SetTheStage(void)
     KlingonNumber[i] = 0;
   }
   // Place the Enterprise
-  i = GetRandom(100);
+  i = GetRandom(0, 99);
   Galaxy[i] = 'E';
   EnterpriseIdx = i;
   EnterpriseRow = ((int)(i / 10)) + 1;
@@ -703,7 +703,7 @@ void SetTheStage(void)
     Placed = 'N';
     while (Placed == 'N')
     {
-      i = GetRandom(100);
+      i = GetRandom(0, 99);
       if (Galaxy[i] == ' ')
       {
         Galaxy[i] = 'K';
@@ -738,11 +738,9 @@ void GetInput(void)
   }
 }
 
-int GetRandom(int Max)
+int GetRandom(int Min, int Max)
 {
-  int x;
-  x = rand() % Max;
-  return x;
+  return Min + (rand() % (Max - Min + 1));
 }
 
 void GoodBye(void)
@@ -750,11 +748,6 @@ void GoodBye(void)
   printf("\nGood-bye\n\n");
   printf("Hit enter\n");
   GetInput();
-}
-
-float GetRandomFactor(void)
-{
-  return ((float)rand() / RAND_MAX) * 2.0f;
 }
 
 void SeedRandom(void)
