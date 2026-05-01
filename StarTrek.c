@@ -74,15 +74,17 @@ int main(int argc, char* argv[])
   GameRun = 'Y';
   QuitForSure = 'N';
   SetTheStage();
+  Menu();
+  GetCmd();
   while (GameRun == 'Y')
   {
-    if (!(Cmd >= '1' && Cmd <= '9'))
-    {
-      Menu();
-      GetCmd();
-    }
     switch (Cmd)
     {
+    case '0':
+      Cmd = ' ';
+      Menu();
+      GetCmd();
+      break;
     case '1':
       Cmd = ' ';
       SetCourse();
@@ -125,6 +127,7 @@ int main(int argc, char* argv[])
       break;
     default:
       printf("\nPlease enter 1-9!\n");
+      GetCmd();
     }
   }
 }
@@ -722,7 +725,14 @@ void GetCmd(void)
 {
   printf("> ");
   GetInput();
-  Cmd = Buf[0];
+  if (Buf[0] >= '0' && Buf[0] <= '9' && Buf[1] == '\0')
+  {
+    Cmd = Buf[0];
+  }
+  else
+  {
+    Cmd = ' ';
+  }
 }
 
 void GetInput(void)
