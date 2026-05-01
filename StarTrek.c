@@ -28,45 +28,45 @@
 #include <time.h>
 
 // Global Variables  
-char Buf[BUFSIZ];
-char Cmd;
-int  Energy;
-int  EnterpriseCol;
-int  EnterpriseIdx;
-int  EnterpriseRow;
-char Galaxy[100];
-int  GalaxyRow;
-int  GalaxyCol;
-char GameRun;
-double KlingonHealth[100];
-int  KlingonNumber[100];
-int  KlingonsRemaining;
-char QuitForSure;
-int  Shields;
-int  Torpedoes;
+char  Buf[BUFSIZ];
+char  Cmd;
+int   Energy;
+int   EnterpriseCol;
+int   EnterpriseIdx;
+int   EnterpriseRow;
+char  Galaxy[100];
+int   GalaxyRow;
+int   GalaxyCol;
+char  GameRun;
+int   KlingonHealth[100];
+int   KlingonNumber[100];
+int   KlingonsRemaining;
+char  QuitForSure;
+int   Shields;
+int   Torpedoes;
 
 // GamePlay Functions
-void SetCourse(void);
-void ShortRangeSensorScan(void);
-void LongRangeSensorScan(void);
-void FirePhasers(void);
-void FirePhotonTorpedoes(void);
-void ShieldControl(void);
-void LibraryComputer(void);
-void SelfDestruct(void);
-void Quit(void);
+void  SetCourse(void);
+void  ShortRangeSensorScan(void);
+void  LongRangeSensorScan(void);
+void  FirePhasers(void);
+void  FirePhotonTorpedoes(void);
+void  ShieldControl(void);
+void  LibraryComputer(void);
+void  SelfDestruct(void);
+void  Quit(void);
 
 // Initialization Functions
 void SetTheStage(void);
 
 // Helper Functions
-void GetCmd(void);
-void GetInput(void);
-int  GetRandom(int Max);
-double GetRandomFactor(void);
-void Menu(void);
-void SeedRandom(void);
-void ShowEnterprise(void);
+void  GetCmd(void);
+void  GetInput(void);
+int   GetRandom(int Max);
+float GetRandomFactor(void);
+void  Menu(void);
+void  SeedRandom(void);
+void  ShowEnterprise(void);
 
 int main(int argc, char* argv[])
 {
@@ -183,7 +183,7 @@ void SetCourse(void)
   }
   a = abs(GalaxyRow - EnterpriseRow);
   b = abs(GalaxyCol - EnterpriseCol);
-  c = (int)sqrt((float)(a * a + b * b));
+  c = (int)sqrtf((float)(a * a + b * b));
   c = c * 50;
   if (c > Energy)
   {
@@ -416,8 +416,9 @@ void FirePhasers(void)
 {
   int Col;
   int Count;
-  double Damage;
-  double Distance;
+  float Damage;
+  int DamagePoints;
+  float Distance;
   int EnergyToFire;
   char Extra;
   int i;
@@ -478,10 +479,10 @@ void FirePhasers(void)
       {
         continue;
       }
-      Distance = sqrt((double)((Row - EnterpriseRow) * (Row - EnterpriseRow) +
+      Distance = sqrtf((float)((Row - EnterpriseRow) * (Row - EnterpriseRow) +
         (Col - EnterpriseCol) * (Col - EnterpriseCol)));
       printf("Klingon %i - Range: %.2f Points: %i\n", KlingonNumber[i],
-        Distance, (int)KlingonHealth[i]);
+        Distance, KlingonHealth[i]);
     }
   }
   do
@@ -528,21 +529,22 @@ void FirePhasers(void)
       {
         continue;
       }
-      Distance = sqrt((double)((Row - EnterpriseRow) * (Row - EnterpriseRow) +
+      Distance = sqrtf((float)((Row - EnterpriseRow) * (Row - EnterpriseRow) +
         (Col - EnterpriseCol) * (Col - EnterpriseCol)));
-      Damage = ((double)EnergyToFire / Count / Distance) * GetRandomFactor();
-      if (Damage < 2.0)
+      Damage = ((float)EnergyToFire / Count / Distance) * GetRandomFactor();
+      DamagePoints = (int)Damage;
+      if (DamagePoints < 2)
       {
-        Damage = 2.0;
+        DamagePoints = 2;
       }
-      KlingonHealth[i] = KlingonHealth[i] - Damage;
-      if (KlingonHealth[i] < 1.0)
+      KlingonHealth[i] = KlingonHealth[i] - DamagePoints;
+      if (KlingonHealth[i] < 1)
       {
         Galaxy[i] = ' ';
-        KlingonHealth[i] = 0.0;
+        KlingonHealth[i] = 0;
         KlingonsRemaining--;
         printf("%i unit hit on Klingon %i at sector %i,%i destroyed. %i Klingon",
-          (int)Damage, KlingonNumber[i], Row, Col, KlingonsRemaining);
+          DamagePoints, KlingonNumber[i], Row, Col, KlingonsRemaining);
         if (KlingonsRemaining != 1)
         {
           printf("s");
@@ -551,9 +553,9 @@ void FirePhasers(void)
       }
       else
       {
-        printf("%i unit hit on Klingon %i at sector %i,%i", (int)Damage,
+        printf("%i unit hit on Klingon %i at sector %i,%i", DamagePoints,
           KlingonNumber[i], Row, Col);
-        printf("   (%i left)\n", (int)KlingonHealth[i]);
+        printf("   (%i left)\n", KlingonHealth[i]);
       }
     }
   }
@@ -671,7 +673,7 @@ void SetTheStage(void)
   for (i = 0; i < 100; i++)
   {
     Galaxy[i] = ' ';
-    KlingonHealth[i] = 0.0;
+    KlingonHealth[i] = 0;
     KlingonNumber[i] = 0;
   }
   // Place the Enterprise
@@ -690,7 +692,7 @@ void SetTheStage(void)
       if (Galaxy[i] == ' ')
       {
         Galaxy[i] = 'K';
-        KlingonHealth[i] = 200.0;
+        KlingonHealth[i] = 200;
         KlingonNumber[i] = k;
         Placed = 'Y';
       }
@@ -728,9 +730,9 @@ int GetRandom(int Max)
   return x;
 }
 
-double GetRandomFactor(void)
+float GetRandomFactor(void)
 {
-  return ((double)rand() / RAND_MAX) * 2.0;
+  return ((float)rand() / RAND_MAX) * 2.0f;
 }
 
 void SeedRandom(void)
