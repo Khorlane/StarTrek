@@ -55,6 +55,7 @@ void  ShieldControl(void);
 void  LibraryComputer(void);
 void  SelfDestruct(void);
 void  Quit(void);
+void  Win(void);
 
 // Initialization Functions
 void SetTheStage(void);
@@ -64,6 +65,7 @@ void  GetCmd(void);
 void  GetInput(void);
 int   GetRandom(int Max);
 float GetRandomFactor(void);
+void  GoodBye(void);
 void  Menu(void);
 void  SeedRandom(void);
 void  ShowEnterprise(void);
@@ -499,9 +501,9 @@ void FirePhasers(void)
       printf("Invalid energy amount\n");
       continue;
     }
-    if (EnergyToFire <= 10)
+    if (EnergyToFire <= 9)
     {
-      printf("Phasers require more than 10 units to fire\n");
+      printf("Phasers require at least 10 units to fire\n");
       continue;
     }
     if (EnergyToFire > Energy)
@@ -543,13 +545,20 @@ void FirePhasers(void)
         Galaxy[i] = ' ';
         KlingonHealth[i] = 0;
         KlingonsRemaining--;
-        printf("%i unit hit on Klingon %i at sector %i,%i destroyed. %i Klingon",
-          DamagePoints, KlingonNumber[i], Row, Col, KlingonsRemaining);
+        printf("%i unit hit on Klingon %i at sector %i,%i - destroyed.",
+          DamagePoints, KlingonNumber[i], Row, Col);
+        if (KlingonsRemaining == 0)
+        {
+          printf("\n");
+          Win();
+          return;
+        }
+        printf(" %i Klingon", KlingonsRemaining);
         if (KlingonsRemaining != 1)
         {
           printf("s");
         }
-        printf(" left to hunt down\n");
+        printf(" left to destroy\n");
       }
       else
       {
@@ -642,6 +651,14 @@ void SelfDestruct(void)
   GetInput();
 }
 
+void Win(void)
+{
+  printf("THE LAST KLINGON BATTLE CRUISER IN THE GALAXY HAS BEEN DESTROYED\n");
+  printf("THE FEDERATION HAS BEEN SAVED !!!\n");
+  GoodBye();
+  GameRun = 'N';
+}
+
 void Quit(void)
 {
   printf("Are you sure? Y-N\n");
@@ -649,9 +666,7 @@ void Quit(void)
   if (Buf[0] == 'Y' || Buf[0] == 'y')
   {
     QuitForSure = 'Y';
-    printf("\nGood-bye\n\n");
-    printf("Hit enter\n");
-    GetInput();
+    GoodBye();
   }
 }
 
@@ -728,6 +743,13 @@ int GetRandom(int Max)
   int x;
   x = rand() % Max;
   return x;
+}
+
+void GoodBye(void)
+{
+  printf("\nGood-bye\n\n");
+  printf("Hit enter\n");
+  GetInput();
 }
 
 float GetRandomFactor(void)
